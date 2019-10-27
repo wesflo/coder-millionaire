@@ -89,11 +89,16 @@
         element.innerHTML = `JS Error appears<span>${e}</span>`;
     };
 
+    const iframeDoneEvent = new CustomEvent('iframeDone');
     const theInstructions = decodeURIComponent(location.search.split('=')[1]);
-    const F = new Function(theInstructions);
+    const runDemoCode = new Function(theInstructions);
 
-    setTimeout(F, 2000);
-
+    if(theInstructions.length > 0) {
+        setTimeout(() => {
+            window.parent.document.dispatchEvent(iframeDoneEvent);
+            runDemoCode();
+        }, 2000);
+    }
 </script>
 </body>
 </html>

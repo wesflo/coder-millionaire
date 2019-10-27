@@ -36,13 +36,20 @@ class RootComponent extends React.Component {
         let {step, questionIndex, question, iframeProps} = this.state;
         let direction = 0;
 
-        if (e.keyCode === 32 || e.keyCode === 39) {
-            e.preventDefault();
-            direction = 1
-        } else {
-            if (e.keyCode === 37) {
+        switch (e.keyCode) {
+            case 32:
+            case 39:
+                e.preventDefault();
+                direction = 1;
+                break;
+            case 37:
                 direction = -1;
-            }
+                break;
+            case 99999:
+                direction = 1;
+                break;
+            default:
+                return;
         }
 
         step += direction;
@@ -100,6 +107,11 @@ class RootComponent extends React.Component {
 
     initEvents() {
         window.addEventListener('keyup', this.updateStep);
+        document.addEventListener('iframeDone', e => {
+            this.updateStep({
+                keyCode: 99999
+            });
+        })
     }
 
     countdown = () => {
