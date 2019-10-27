@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#000000">
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        .demo {
+            font-size: 28px;
+            color: #e60000;
+            margin: 0;
+            text-align: center;
+        }
+
+        .demo span {
+            text-align: center;
+            display: block;
+            font-size: 14px;
+        }
+
+        #ballsWaveG {
+            display: flex;
+            width: 100px;
+            height: 16px;
+            justify-content: space-between;
+        }
+
+        .ballsWaveG {
+            background-color: rgb(230, 0, 0);
+            opacity: 0;
+            width: 16px;
+            height: 16px;
+            animation-name: ballsWaveG;
+            animation-duration: 1.5s;
+            animation-iteration-count: infinite;
+            animation-direction: normal;
+            border-radius: 8px;
+        }
+
+        .ballsWaveG_1 {
+            animation-delay: 0.6s;
+        }
+
+        .ballsWaveG_2 {
+            animation-delay: 0.75s;
+        }
+
+        .ballsWaveG_3 {
+            animation-delay: 0.9s;
+        }
+
+        .ballsWaveG_4 {
+            animation-delay: 1.05s;
+        }
+
+
+        @keyframes ballsWaveG {
+            0% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div style="display:flex;justify-content: center; align-items: center; height: 100px">
+    <div class="demo" id="demo">
+        <div id="ballsWaveG">
+            <div class="ballsWaveG ballsWaveG_1"></div>
+            <div class="ballsWaveG ballsWaveG_2"></div>
+            <div class="ballsWaveG ballsWaveG_3"></div>
+            <div class="ballsWaveG ballsWaveG_4"></div>
+        </div>
+    </div>
+</div>
+<script>
+    const element = document.getElementById('demo');
+
+    window.onerror = (e) => {
+        element.innerHTML = `JS Error appears<span>${e}</span>`;
+    };
+
+    const theInstructions = decodeURIComponent(location.search.split('=')[1]);
+    const F = new Function(theInstructions);
+
+    setTimeout(F, 2000);
+
+</script>
+</body>
+</html>
