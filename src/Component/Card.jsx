@@ -1,6 +1,6 @@
 import React from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
-import { darcula } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import {darcula} from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 export default class extends React.Component {
     constructor(props) {
@@ -16,7 +16,7 @@ export default class extends React.Component {
             const className = this.props.step === 3 && question.rightAnswer === key ? 'highlight' : '';
 
             answers.push(
-                <li key={key} className={ className } dangerouslySetInnerHTML={{ __html: question.answers[key] }} />
+                <li key={key} className={className} dangerouslySetInnerHTML={{__html: question.answers[key]}}/>
             );
         }
 
@@ -28,18 +28,19 @@ export default class extends React.Component {
 
         return (
             <div className="card">
-                <div className={`card-code ${this.props.step > 0 ? 'open': ''}`}>
+                <div className={`card-code ${this.props.step > 0 ? 'open' : ''}`}>
                     <SyntaxHighlighter language="javascript" style={darcula}>
                         {question.code}
                     </SyntaxHighlighter>
                 </div>
                 <div className="card-body">
-                    <div className={'question'} dangerouslySetInnerHTML={{ __html: question.question || this.baseQuestion }} />
+                    <div className={'question'}
+                         dangerouslySetInnerHTML={{__html: question.question || this.baseQuestion}}/>
                     <ul className="answers">
-                        { this.getAnswers(question) }
+                        {this.getAnswers(question)}
                     </ul>
                 </div>
             </div>
-        )
+        );
     }
 }
