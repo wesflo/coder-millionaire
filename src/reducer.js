@@ -1,32 +1,25 @@
-import {COUNTDOWN_START_TIME, COUNTDOWN_STATES, REDUCERS, STEPS} from './Constants';
+import {COUNTDOWN_START_TIME, REDUCERS, STEPS} from './Constants';
 import questions from './questions';
 import getSiblingInArr from './util/getSiblingInArr';
 
 export default (state = {
     step: STEPS[0],
-    question: questions,
+    questions: questions,
+    question: questions[0],
     countdown: {
         value: COUNTDOWN_START_TIME,
-        state: COUNTDOWN_STATES.waiting
+        visible: false,
     }
 }, action) => {
     let step;
 
     switch (action.type) {
-        case REDUCERS.countdownStart:
+        case REDUCERS.countdownDecrement:
             return {
                 ...state,
                 countdown: {
-                    value: COUNTDOWN_START_TIME,
-                    state: COUNTDOWN_STATES[0],
-                },
-            };
-        case REDUCERS.countdownEnd:
-            return {
-                ...state,
-                countdown: {
-                    value: 0,
-                    state: COUNTDOWN_STATES[2],
+                    value: state.countdown.value - 1,
+                    visible: true,
                 },
             };
         case REDUCERS.countdownReset:
@@ -34,19 +27,11 @@ export default (state = {
                 ...state,
                 countdown: {
                     value: COUNTDOWN_START_TIME,
-                    state: COUNTDOWN_STATES[0],
-                },
-            };
-        case REDUCERS.countdownDecrement:
-            return {
-                ...state,
-                countdown: {
-                    value: state.countdown.value - 1,
-                    state: COUNTDOWN_STATES[1],
+                    visible: false,
                 },
             };
         case REDUCERS.goToNextStep:
-            step = getSiblingInArr(state.step, STEPS) || STEPS[0];
+            step = getSiblingInArr(state.step, STEPS) || STEPS.question;
 
             return {
                 ...state,

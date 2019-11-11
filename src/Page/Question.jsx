@@ -1,6 +1,10 @@
 import React from 'react';
 import CardComponent from '../Component/Card';
+import Countdown from '../Component/Countdown';
+import Iframe from '../Component/Iframe';
 import questions from '../questions';
+import {action} from '../action';
+import {STEP_COUNTDOWN, STEP_DEMO, STEP_QUESTION, STEP_RESOLUTION, STEP_SOLUTION, STEPS} from '../Constants';
 
 export default class extends React.Component {
     constructor(props) {
@@ -8,131 +12,85 @@ export default class extends React.Component {
 
         this.maxSteps = 3;
         this.maxQuestionIndex = 0;
-        this.interval = null;
-        this.defaultCountdown = 30;
-        this.defaultIframeSurce = '/iframe.html?run=';
-        this.iframe = React.createRef();
+        this.interval = null;        this.defaultCountdown = 30;
+
+        this.defaultIframeSource = '/iframe.html?run=';
 
         this.state = {
-            countdown: this.defaultCountdown,
-            step: 0,
-            questionIndex: 0,
-            question: questions[0],
-            iframeProps: {
-                sandbox:
-                    'allow-forms allow-scripts allow-same-origin allow-modals allow-popups allow-presentation',
-                allow:
-                    'geolocation; microphone; camera;midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb',
-                src: this.defaultIframeSurce,
-                ref: this.iframe,
-                className: ''
-            }
+            iframeSource: this.defaultIframeSource,
         };
         this.initEvents();
     }
 
-    updateStep = e => {
-        let {step, questionIndex, question, iframeProps} = this.state;
-        let direction = 0;
+    updateStepByKeyboard = e => {
+        const {dispatch} = this.props;
 
         switch (e.keyCode) {
             case 32:
             case 39:
                 e.preventDefault();
-                direction = 1;
+                dispatch(action.goToNextStep());
                 break;
             case 37:
-                direction = -1;
-                break;
-            case 99999:
-                direction = 1;
+                dispatch(action.goToPrevStep());
                 break;
             default:
                 return;
         }
-
-        step += direction;
-
-        if (step < 0) {
-            if (questionIndex > 0) {
-                questionIndex--;
-                step = this.maxSteps;
-            } else {
-                step = 0;
-            }
-        } else {
-            if (step > this.maxSteps) {
-                if (questionIndex < this.maxQuestionIndex) {
-                    questionIndex++;
-                    step = 0;
-                } else {
-                    step = this.maxSteps;
-                }
-            }
-        }
-
-        if (step < 2) {
-            question = questions[questionIndex];
-            iframeProps.className = '';
-            iframeProps.src = this.defaultIframeSurce;
-        }
-
-        if (step === 1) {
-            this.startCountdown();
-        } else {
-            clearInterval(this.interval);
-        }
-
-        this.setState({
-            step,
-            questionIndex,
-            question,
-            iframeProps,
-            countdown: this.defaultCountdown
-        });
     };
 
-    loadIframe = () => {
-        let {iframeProps, question} = this.state;
+    componentDidUpdate(props, state) {
+        const {dispatch} = this.props;
+        switch(props.step) {
+            case STEP_QUESTION:
+                dispatch(action.countdownReset());
+                break;
+            case STEP_COUNTDOWN:
+                this.processCountdown();
+                break;
+            case STEP_SOLUTION:
+                break;
+            case STEP_DEMO:
+                this.processDemo();
+                break;
+            case STEP_RESOLUTION:
+                this.setState({iframeSource: this.defaultIframeSource});
+                dispatch(action.countdownReset());
+                break;
+        }
+    }
 
-        iframeProps.className = 'show';
+    processDemo() {
+        const {question} = this.props;
+        let {iframeSource} = this.state;
 
-        if (iframeProps.src === this.defaultIframeSurce) {
-            iframeProps.src =
-                this.defaultIframeSurce +
-                encodeURIComponent(question.code.replace('  ', ''));
-        } else {
-            iframeProps.src = this.defaultIframeSurce;
-            setTimeout(this.loadIframe, 200);
+        if (iframeSource === this.defaultIframeSurce) {
+            iframeSource = this.defaultIframeSurce + encodeURIComponent(question.code.replace('  ', ''));
         }
 
-        this.setState({iframeProps});
-    };
+        this.setState({iframeSource});
+    }
+
+    processCountdown() {
+        const {countdown, dispatch} = this.props;
+
+        if(countdown.value === 0) {
+            dispatch(action.countdownEnd());
+            clearInterval(interval);
+        } else {
+            this.interval = setInterval(() => {
+                dispatch(action.countdownDecrement());
+            }, 1000);
+        }
+    }
 
     initEvents() {
-        window.addEventListener('keyup', this.updateStep);
+        window.addEventListener('keyup', this.updateStepByKeyboard);
         document.addEventListener('iframeDone', e => {
             this.updateStep({
                 keyCode: 99999
             });
         });
-    }
-
-    countdown = () => {
-        let {countdown, step} = this.state;
-        countdown--;
-console.log( countdown );
-        if (countdown <= 0) {
-            step++;
-            countdown = this.defaultCountdown;
-            clearInterval(this.interval);
-        }
-
-        this.setState({step, countdown});
-    };
-
-    startCountdown() {
-        this.interval = setInterval(this.countdown, 1000);
     }
 
     render() {
@@ -148,27 +106,12 @@ console.log( countdown );
                         </div>
                     </div>
                     <div className="col">
-                        <div
-                            id="countdown"
-                            className={`countdown ${step === 1 ? 'show' : ''}`}
-                        >
-                            <span>{this.state.countdown}</span>
-                            <em>sec</em>
-                        </div>
+                        <Countdown />
                     </div>
                 </div>
                 <div className="row">
                     <div className="col-11">
-                        <div className="d-flex justify-content-center mt-5">
-                            <button
-                                type="button"
-                                className={`btn btn-outline-primary ${step >= 2 ? 'show' : ''}`}
-                                onClick={this.loadIframe}
-                            >
-                                Load Script
-                            </button>
-                        </div>
-                        <iframe title="codeDemo" {...this.state.iframeProps} />
+                        <Iframe src={this.state.iframeSource} />
                     </div>
                 </div>
             </div>
